@@ -103,7 +103,9 @@ function standardizeField(key, data, decoders, stdNumeric) {
       // todo add support for scaling to [0, 1]
       const mean = _.mean(values);
       const std = calculateStd(values, mean);
-      decoders.push({ type, mean, std, key });
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      decoders.push({ type, mean, std, key, min, max });
       if (stdNumeric) {
         return _.map(values, value => ((value - mean) / std) || 0); // Return 0 if the std = 0 and the result is NaN
       } else {
