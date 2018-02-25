@@ -33,6 +33,27 @@ describe('feature scaling', function() {
     }
   });
 
+  it('can encode without std', () => {
+    const epsilon = 0.005;
+    const enc = lib.encode(raw, { dataKeys: ['value', 'bool', 'str', 'float', 'constant'],
+                                  labelKeys: ['label'], stdNumeric: false});
+    const [ e0, e1, e2, e3 ] = enc.data;
+    testEncoded(e0, 7000, 1, [1, 0, 0], 0.3, 15, 0.1);
+    testEncoded(e1, 4000, 1, [0, 1, 0], 0.00, 15, 0.8);
+    testEncoded(e2, 2500, 1, [0, 0, 1], 0.15, 15, 1);
+    testEncoded(e3, 9000, 0, [0, 0, 1], 0.15, 15, 0);
+
+    function testEncoded(el, value, bool, str, float, constant, label) {
+      assert.approximately(el[0], value, epsilon);
+      assert.equal(el[1], bool);
+      assert.deepEqual(el.slice(2,5), str);
+      assert.approximately(el[5], float, epsilon);
+      assert.approximately(el[6], constant, epsilon);
+      assert.approximately(el[7], label, epsilon);
+      assert.equal(el.length, 8);
+    }
+  });
+
   it('can decode', () => {
     const epsilon = 0.005;
     const enc = lib.encode(raw, { dataKeys: ['value', 'bool', 'str', 'float', 'constant'],
