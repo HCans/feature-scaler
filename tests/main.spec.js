@@ -14,7 +14,8 @@ describe('feature scaling', function() {
 
   it('can encode', () => {
     const epsilon = 0.005;
-    const enc = lib.encode(raw, { dataKeys: ['value', 'bool', 'str', 'float', 'constant'], labelKeys: ['label']});
+    const enc = lib.encode(raw, { dataKeys: ['value', 'bool', 'str', 'float', 'constant'],
+                                  labelKeys: ['label'], stdNumeric: true});
     const [ e0, e1, e2, e3 ] = enc.data;
     testEncoded(e0, 0.469, 1, [1, 0, 0], 1.22, 0, -0.751);
     testEncoded(e1, -0.555, 1, [0, 1, 0], -1.22, 0, 0.651);
@@ -34,7 +35,8 @@ describe('feature scaling', function() {
 
   it('can decode', () => {
     const epsilon = 0.005;
-    const enc = lib.encode(raw, { dataKeys: ['value', 'bool', 'str', 'float', 'constant'], labelKeys: ['label']});
+    const enc = lib.encode(raw, { dataKeys: ['value', 'bool', 'str', 'float', 'constant'],
+                                  labelKeys: ['label'], stdNumeric: true });
     const [ d0, d1, d2, d3, d4 ] = lib.decode(enc.data, enc.decoders);
     testDecoded(d0, raw[0]);
     testDecoded(d1, raw[1]);

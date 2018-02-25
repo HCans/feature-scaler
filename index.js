@@ -13,8 +13,9 @@ module.exports = {
  * @param opts - dataKeys: independent variables, labelKeys: dependent variables
  * @return {{data: Array, decoders: Array}} - see readme for full explanation
  */
-function encode(data, opts = { dataKeys: null, labelKeys: null }) {
+function encode(data, opts = { dataKeys: null, labelKeys: null, stdNumeric: null }) {
   const labelKeys = opts.labelKeys;
+  const stdNumeric = opts.stdNumeric;
   const decoders = [];
 
   // shortcut to allow caller to default to "all non-label keys are data keys"
@@ -23,7 +24,7 @@ function encode(data, opts = { dataKeys: null, labelKeys: null }) {
 
   // maybe a little too clever but also the simplest;
   // serialize every value for a given data key, then zip the results back up into a (possibly nested) array
-  const transform = keys => _.zip(..._.map(keys, key => standardizeField(key, data, decoders)));
+  const transform = keys => _.zip(..._.map(keys, key => standardizeField(key, data, decoders, stdNumeric)));
   const features = transform(dataKeys);
   const labels = transform(labelKeys);
 
@@ -73,7 +74,7 @@ function decodeRow(row, decoders) {
   }
 }
 
-function standardizeField(key, data, decoders) {
+function standardizeField(key, data, decoders, stdNumeric) {
   const type = typeof data[0][key];
   const values = _.map(data, key);
 
@@ -103,7 +104,11 @@ function standardizeField(key, data, decoders) {
       const mean = _.mean(values);
       const std = calculateStd(values, mean);
       decoders.push({ type, mean, std, key });
-      return _.map(values, value => ((value - mean) / std) || 0); // Return 0 if the std = 0 and the result is NaN
+      if (stdNumeric) {
+        return _.map(values, value => ((value - mean) / std) || 0); // Return 0 if the std = 0 and the result is NaN
+      } else {
+        return _.map(values, value => value); // Return 0 if the std = 0 and the result is NaN
+      }
     }
 
     case 'boolean': {
